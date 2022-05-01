@@ -1,7 +1,7 @@
 {
   "homepage": "http://HermanIshengoma.github.io/3d-pointcloud-reconstruction",
   "name": "reconstructing-3d-point-clouds-through-neural-sdfs",
-  "repository": "3D-reconstruction-project",
+  "repository": "3d-pointcloud-reconstruction",
   "version": "0.1.0",
   "title": "Reconstructing 3D Point Clouds",
   "description": "We build an interactive game using neural SDFs where we reconstruct meshes using point clouds. The users are able to import meshes and randomly sample point clouds from the meshes, the point clouds are then processed for inference and the reconstructed result is outputted.",
