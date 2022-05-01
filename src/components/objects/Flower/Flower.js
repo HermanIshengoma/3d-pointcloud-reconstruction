@@ -2,7 +2,7 @@ import { Group, MeshBasicMaterial, Mesh, Points, PointsMaterial, Vector3, Geomet
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader'
 import {Result} from 'objects';
-// import MODEL from './reconstruct.ply'
+// import MODEL1 from './land.gltf'
 
 var mesh = null;
 var geo;
@@ -39,55 +39,124 @@ class Flower extends Group {
         // Load object
         const loader = new PLYLoader();
 
+        //console.log(MODEL1);
+        //console.log(MODEL2);
         this.name = 'baseModel';
         const path = './src/components/objects/models/' + meshObj;
-        // https://sbcode.net/threejs/loaders-ply/
-        loader.load(
-            path,
-            function (geometry) {
-                geometry.computeVertexNormals()
-                // https://stackoverflow.com/questions/25735128/three-js-show-single-vertex-as-ie-a-dot
-                // https://dev.to/maniflames/pointcloud-effect-in-three-js-3eic
-                //const material = new PointsMaterial( { color: 0x808080, size: 1.0/128.0 } )
-                //mesh = new Points(geometry, material)
-                //const material = new MeshBasicMaterial({color: 0x808080});
-                // const material = new MeshBasicMaterial({color: 0xf0f0f0});
-                const material = new MeshBasicMaterial({color: 0x5DADE2 });
-                mesh = new Mesh(geometry, material)
-                mesh.rotateX(-Math.PI / 2)
+
+        async function fetchMesh() {
+            const response = await fetch('https://final-3d-reconstruction.herokuapp.com/post/', {
+          //const response = await fetch('http://127.0.0.1:5000/post/', {
+            method: 'POST',
+            headers: {
+              //'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({'data': JSON.stringify([[]])})
+            //body: JSON.stringify({'data': pointCloud}),
+          });
+          const content = await response.blob();
+          return content;
+        }
+        fetchMesh().then(content => {
+            //console.log(content); // fetched movies
+            var url = URL.createObjectURL(content);
+             // https://sbcode.net/threejs/loaders-ply/
+            loader.load(
+                url,
+                function (geometry) {
+                    geometry.computeVertexNormals()
+                    // https://stackoverflow.com/questions/25735128/three-js-show-single-vertex-as-ie-a-dot
+                    // https://dev.to/maniflames/pointcloud-effect-in-three-js-3eic
+                    //const material = new PointsMaterial( { color: 0x808080, size: 1.0/128.0 } )
+                    //mesh = new Points(geometry, material)
+                    //const material = new MeshBasicMaterial({color: 0x808080});
+                    // const material = new MeshBasicMaterial({color: 0xf0f0f0});
+                    const material = new MeshBasicMaterial({color: 0x5DADE2 });
+                    mesh = new Mesh(geometry, material)
+                    mesh.rotateX(-Math.PI / 2)
+            
+                    // ensuring mesh is inside unit cube or encompasses most of it
+                    geometry.computeBoundingBox();
+                    // console.log('before bounding box', geometry.boundingBox)
+                    var max = 0.0;
+                    if (Math.abs(geometry.boundingBox.max.x) > max) max = geometry.boundingBox.max.x
+                    if (Math.abs(geometry.boundingBox.max.y) > max) max = geometry.boundingBox.max.y
+                    if (Math.abs(geometry.boundingBox.max.z) > max) max = geometry.boundingBox.max.z
+                    if (Math.abs(geometry.boundingBox.min.x) > max) max = geometry.boundingBox.min.x
+                    if (Math.abs(geometry.boundingBox.min.y) > max) max = geometry.boundingBox.min.y
+                    if (Math.abs(geometry.boundingBox.min.z) > max) max = geometry.boundingBox.min.z
+                    max = Math.abs(max);
+                    var scale = 1.0/max;
+                    geometry.scale(scale, scale, scale);
+                    geometry.computeBoundingBox();
+            
+                    geo = geometry;
+                    parent.add(mesh)
+            
+                    
+                    // console.log(geometry)
+                    // fs.writeFile('geometryPos.txt', geometry.attributes.position, (err) => {
+                    //     // In case of a error throw err.
+                    //     if (err) throw err;
+                    // })
+                },
+                (xhr) => {
+                    console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+                },
+                (error) => {
+                    console.log(error)
+                }
+            )
+            });
+
+        // // https://sbcode.net/threejs/loaders-ply/
+        // loader.load(
+        //     path,
+        //     function (geometry) {
+        //         geometry.computeVertexNormals()
+        //         // https://stackoverflow.com/questions/25735128/three-js-show-single-vertex-as-ie-a-dot
+        //         // https://dev.to/maniflames/pointcloud-effect-in-three-js-3eic
+        //         //const material = new PointsMaterial( { color: 0x808080, size: 1.0/128.0 } )
+        //         //mesh = new Points(geometry, material)
+        //         //const material = new MeshBasicMaterial({color: 0x808080});
+        //         // const material = new MeshBasicMaterial({color: 0xf0f0f0});
+        //         const material = new MeshBasicMaterial({color: 0x5DADE2 });
+        //         mesh = new Mesh(geometry, material)
+        //         mesh.rotateX(-Math.PI / 2)
         
-                // ensuring mesh is inside unit cube or encompasses most of it
-                geometry.computeBoundingBox();
-                // console.log('before bounding box', geometry.boundingBox)
-                var max = 0.0;
-                if (Math.abs(geometry.boundingBox.max.x) > max) max = geometry.boundingBox.max.x
-                if (Math.abs(geometry.boundingBox.max.y) > max) max = geometry.boundingBox.max.y
-                if (Math.abs(geometry.boundingBox.max.z) > max) max = geometry.boundingBox.max.z
-                if (Math.abs(geometry.boundingBox.min.x) > max) max = geometry.boundingBox.min.x
-                if (Math.abs(geometry.boundingBox.min.y) > max) max = geometry.boundingBox.min.y
-                if (Math.abs(geometry.boundingBox.min.z) > max) max = geometry.boundingBox.min.z
-                max = Math.abs(max);
-                var scale = 1.0/max;
-                geometry.scale(scale, scale, scale);
-                geometry.computeBoundingBox();
+        //         // ensuring mesh is inside unit cube or encompasses most of it
+        //         geometry.computeBoundingBox();
+        //         // console.log('before bounding box', geometry.boundingBox)
+        //         var max = 0.0;
+        //         if (Math.abs(geometry.boundingBox.max.x) > max) max = geometry.boundingBox.max.x
+        //         if (Math.abs(geometry.boundingBox.max.y) > max) max = geometry.boundingBox.max.y
+        //         if (Math.abs(geometry.boundingBox.max.z) > max) max = geometry.boundingBox.max.z
+        //         if (Math.abs(geometry.boundingBox.min.x) > max) max = geometry.boundingBox.min.x
+        //         if (Math.abs(geometry.boundingBox.min.y) > max) max = geometry.boundingBox.min.y
+        //         if (Math.abs(geometry.boundingBox.min.z) > max) max = geometry.boundingBox.min.z
+        //         max = Math.abs(max);
+        //         var scale = 1.0/max;
+        //         geometry.scale(scale, scale, scale);
+        //         geometry.computeBoundingBox();
         
-                geo = geometry;
-                parent.add(mesh)
+        //         geo = geometry;
+        //         parent.add(mesh)
         
                 
-                // console.log(geometry)
-                // fs.writeFile('geometryPos.txt', geometry.attributes.position, (err) => {
-                //     // In case of a error throw err.
-                //     if (err) throw err;
-                // })
-            },
-            (xhr) => {
-                console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
-            },
-            (error) => {
-                console.log(error)
-            }
-        )
+        //         // console.log(geometry)
+        //         // fs.writeFile('geometryPos.txt', geometry.attributes.position, (err) => {
+        //         //     // In case of a error throw err.
+        //         //     if (err) throw err;
+        //         // })
+        //     },
+        //     (xhr) => {
+        //         console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+        //     },
+        //     (error) => {
+        //         console.log(error)
+        //     }
+        // )
 
         // Add self to parent's update list
         parent.addToUpdateList(this);
