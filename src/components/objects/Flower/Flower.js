@@ -23,6 +23,7 @@ class Flower extends Group {
             gui: parent.state.gui,
             bob: true,
             pointCloudRand: this.pointCloudRand.bind(this),
+            resolution: 96,
             twirl: 0,
             noiseApply: this.noise.bind(this),
             inflateApply: this.inflate.bind(this),
@@ -104,6 +105,7 @@ class Flower extends Group {
 
         // Populate GUI
         // this.state.gui.add(this.state, 'bob');
+        folders['PointCloudGeneration'].add(this.state, 'resolution', 64, 128);
         folders['PointCloudGeneration'].add(this.state, 'pointCloudRand');
 
         const filter = this.state.gui.addFolder('Filters');
@@ -125,6 +127,7 @@ class Flower extends Group {
         if(parentGlobal.children.length == 4){
             // console.log(parentGlobal.children[3]['uuid'])
             const object = parentGlobal.getObjectByProperty( 'uuid', parentGlobal.children[3]['uuid']);
+            // referencing https://discourse.threejs.org/t/correctly-remove-mesh-from-scene-and-dispose-material-and-geometry/5448/2
             object.geometry.dispose();
             object.material.dispose();
             parentGlobal.remove( object );
@@ -136,6 +139,7 @@ class Flower extends Group {
         const samples = parentState.numSamples;
         var pointCloud = [];
         var tracker = []
+        var resolution = Math.round(this.state.resolution);
         
 
         for (var i = 0; i < samples; i++){
@@ -188,6 +192,7 @@ class Flower extends Group {
             var updatedVertex = this.getVertex(i).add(toAdd);
             this.updateVertex(i, updatedVertex);
         }
+        this.boundMesh();
        
     }
     
@@ -208,9 +213,14 @@ class Flower extends Group {
             var updatedVertex = this.getVertex(i).add(toAdd);
             this.updateVertex(i, updatedVertex);
         }
+        
+        this.boundMesh();
+        
+
     }
 
     twist(){
+        // console.log(' bounding box', geo.boundingBox)
         var numVertices = geo.attributes.position.count;
         var factor = this.state.factorTwist;
         for (var i = 0; i < numVertices; i++) {
@@ -219,7 +229,7 @@ class Flower extends Group {
             v.applyEuler(a);
             this.updateVertex(i, v);
         }
-
+        this.boundMesh();
 
     }
 
@@ -304,9 +314,28 @@ class Flower extends Group {
 
     return avg / neighbours.size;
     }
+
+    // ensuring mesh is inside unit cube or encompasses most of it
+    async boundMesh(){
+        geo.computeBoundingBox();
+        // console.log('before bounding box', geo.boundingBox)
+        var max = 0.0;
+        if (Math.abs(geo.boundingBox.max.x) > max) max = geo.boundingBox.max.x
+        if (Math.abs(geo.boundingBox.max.y) > max) max = geo.boundingBox.max.y
+        if (Math.abs(geo.boundingBox.max.z) > max) max = geo.boundingBox.max.z
+        if (Math.abs(geo.boundingBox.min.x) > max) max = geo.boundingBox.min.x
+        if (Math.abs(geo.boundingBox.min.y) > max) max = geo.boundingBox.min.y
+        if (Math.abs(geo.boundingBox.min.z) > max) max = geo.boundingBox.min.z
+        max = Math.abs(max);
+        var scale = 1.0/max;
+        geo.scale(scale, scale, scale);
+        geo.computeBoundingBox();
+        // console.log('after bounding box', geo.boundingBox)
+
+        
+    }
 }
 
-// https://discourse.threejs.org/t/correctly-remove-mesh-from-scene-and-dispose-material-and-geometry/5448/2
 
 
 export default Flower;
