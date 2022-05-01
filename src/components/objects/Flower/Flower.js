@@ -2,7 +2,7 @@ import { Group, MeshBasicMaterial, Mesh, Points, PointsMaterial, Vector3, Geomet
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader'
 import {Result} from 'objects';
-
+// import MODEL from './reconstruct.ply'
 
 var mesh = null;
 var geo;
@@ -40,7 +40,7 @@ class Flower extends Group {
         const loader = new PLYLoader();
 
         this.name = 'baseModel';
-        const path = './src/components/objects/Models/' + meshObj;
+        const path = './src/components/objects/models/' + meshObj;
         // https://sbcode.net/threejs/loaders-ply/
         loader.load(
             path,
