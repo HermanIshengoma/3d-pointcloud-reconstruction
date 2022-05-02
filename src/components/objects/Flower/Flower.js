@@ -2,8 +2,7 @@ import { Group, MeshBasicMaterial, Mesh, Points, PointsMaterial, Vector3, Geomet
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader'
 import {Result} from 'objects';
-import swal from 'sweetalert';
-
+import Swal from 'sweetalert2';
 
 var mesh = null;
 var geo;
@@ -52,7 +51,7 @@ class Flower extends Group {
             sharpenIter: 1,
             sharpenDelta: 1.00,
 
-            // uploadMesh: this.uploadMesh.bind(this),
+            uploadMesh: this.uploadMesh.bind(this),
             // selectedFile: null
         };
 
@@ -86,10 +85,6 @@ class Flower extends Group {
                     geometry.computeVertexNormals()
                     // https://stackoverflow.com/questions/25735128/three-js-show-single-vertex-as-ie-a-dot
                     // https://dev.to/maniflames/pointcloud-effect-in-three-js-3eic
-                    //const material = new PointsMaterial( { color: 0x808080, size: 1.0/128.0 } )
-                    //mesh = new Points(geometry, material)
-                    //const material = new MeshBasicMaterial({color: 0x808080});
-                    // const material = new MeshBasicMaterial({color: 0xf0f0f0});
                     const material = new MeshBasicMaterial({color: 0x5DADE2 });
                     mesh = new Mesh(geometry, material)
                     mesh.rotateX(-Math.PI / 2)
@@ -153,7 +148,7 @@ class Flower extends Group {
         fold.add(this.state, 'sharpenDelta', 0.00, 30.00)
         fold.add(this.state, 'sharpenApply');
 
-        //this.state.gui.add(this.state, 'uploadMesh');
+        this.state.gui.add(this.state, 'uploadMesh');
 
 
     }
@@ -352,30 +347,72 @@ class Flower extends Group {
         this.boundMesh();
     }
 
-    // uploadMesh(){
-    //     swal("Hello world!");
+    async uploadMesh(){
+        //swal("Hello world!");
     // https://sweetalert2.github.io/#download
-    // const { value: file } = await Swal.fire({
-    //     title: 'Select image',
-    //     input: 'file',
-    //     inputAttributes: {
-    //       'accept': 'image/*',
-    //       'aria-label': 'Upload your profile picture'
-    //     }
-    //   })
+    const { value: file } = await Swal.fire({
+        title: 'Select image',
+        input: 'file',
+        inputAttributes: {
+          'aria-label': 'Upload your mesh, only use .ply files'
+        }
+      })
       
-    //   if (file) {
-    //     const reader = new FileReader()
-    //     reader.onload = (e) => {
-    //       Swal.fire({
-    //         title: 'Your uploaded picture',
-    //         imageUrl: e.target.result,
-    //         imageAlt: 'The uploaded picture'
-    //       })
-    //     }
-    //     reader.readAsDataURL(file)
-    //   }
-    // }
+      if (file) {
+        const reader = new FileReader()
+
+        const loader = new PLYLoader();
+        var url = URL.createObjectURL(file);
+        loader.load(
+            url,
+            function (geometry) {
+                // console.log(geometry)
+                geometry.computeVertexNormals()
+                // https://stackoverflow.com/questions/25735128/three-js-show-single-vertex-as-ie-a-dot
+                // https://dev.to/maniflames/pointcloud-effect-in-three-js-3eic
+                const material = new MeshBasicMaterial({color: 0x5DADE2 });
+                mesh = new Mesh(geometry, material)
+                mesh.rotateX(-Math.PI / 2)
+        
+                // ensuring mesh is inside unit cube or encompasses most of it
+                geometry.computeBoundingBox();
+                // console.log('before bounding box', geometry.boundingBox)
+                var max = 0.0;
+                if (Math.abs(geometry.boundingBox.max.x) > max) max = geometry.boundingBox.max.x
+                if (Math.abs(geometry.boundingBox.max.y) > max) max = geometry.boundingBox.max.y
+                if (Math.abs(geometry.boundingBox.max.z) > max) max = geometry.boundingBox.max.z
+                if (Math.abs(geometry.boundingBox.min.x) > max) max = geometry.boundingBox.min.x
+                if (Math.abs(geometry.boundingBox.min.y) > max) max = geometry.boundingBox.min.y
+                if (Math.abs(geometry.boundingBox.min.z) > max) max = geometry.boundingBox.min.z
+                max = Math.abs(max);
+                var scale = 1.0/max;
+                geometry.scale(scale, scale, scale);
+                geometry.computeBoundingBox();
+        
+                geo = geometry;
+                
+                
+                const object = parentGlobal.getObjectByProperty( 'uuid', parentGlobal.children[2]['uuid']);
+                // referencing https://discourse.threejs.org/t/correctly-remove-mesh-from-scene-and-dispose-material-and-geometry/5448/2
+                object.geometry.dispose();
+                object.material.dispose();
+                parentGlobal.remove( object );
+
+                parentGlobal.add(mesh)
+                // console.log(parentGlobal)
+        
+            },
+            (xhr) => {
+                console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+            },
+            (error) => {
+                console.log(error)
+            }
+        )
+
+      }
+      //console.log(file)
+    }
     
     update(timeStamp) {
         if (this.state.bob) {

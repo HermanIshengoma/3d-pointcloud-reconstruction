@@ -155,6 +155,7 @@ Swal.fire({
           showCancelButton: true,
           confirmButtonText: `Next`
       }).then((result) => {
+        if (result.isConfirmed) {
         scene.state['gui'].__folders['Filters'].__folders['smooth'].open()
         Swal.fire({
             title: "Filters tutorial",
@@ -162,13 +163,13 @@ Swal.fire({
             showCancelButton: true,
             confirmButtonText: `Next`
         }).then((result) => {
+            if (result.isConfirmed) {
             scene.state['gui'].__folders['Filters'].__folders['smooth'].close()
             scene.state['gui'].__folders['Filters'].close()
             scene.state['gui'].__folders['PointCloudGeneration'].open()
             Swal.fire({
                 title: "Point Cloud tutorial",
                 text: "We have now opened the \'PointCloudGeneration\' folder. Here you can edit the fields \'numSamples\' to pick how many pointClouds the program ought to make and \'resolution\' to pick on what resolution the resultant mesh ought to be. Once you have the desired values set, just press pointCloudRand to generate your mesh.",
-                showCancelButton: true,
                 confirmButtonText: `Next`
             }).then((result) => {
                 scene.state['gui'].__folders['PointCloudGeneration'].close()
@@ -178,7 +179,16 @@ Swal.fire({
                     'success'
                   )
             })
+        }
+        else{
+            scene.state['gui'].__folders['Filters'].__folders['smooth'].close()
+            scene.state['gui'].__folders['Filters'].close()
+        }
         })
+    }
+        else{
+            scene.state['gui'].__folders['Filters'].close()
+        }
       })
     }
   })
