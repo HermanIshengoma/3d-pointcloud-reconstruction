@@ -154,7 +154,7 @@ class Flower extends Group {
     }
 
     // randomly select random set of vertices
-    pointCloudRand() {
+    async pointCloudRand() {
         
         if(parentGlobal.children.length == 4){
             // console.log(parentGlobal.children[3]['uuid'])
@@ -183,26 +183,79 @@ class Flower extends Group {
         console.log(pointCloud);
         // console.log(geo.attributes.position)
         // send request
-        async function fetchMesh() {
-            const response = await fetch('https://final-3d-reconstruction.herokuapp.com/post/', {
-          //const response = await fetch('http://127.0.0.1:5000/post/', {
-            method: 'POST',
-            headers: {
-              //'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({'data': JSON.stringify(pointCloud)})
-            //body: JSON.stringify({'data': pointCloud}),
-          });
-          const content = await response.blob();
-          return content;
-        }
-        
-        fetchMesh().then(content => {
-          //console.log(content); // fetched movies
-          var url = URL.createObjectURL(content);
-          res = new Result(parentGlobal, url)
+        // Swal.fire({
+        //     text: 'Loading the newly created mesh',
+        //     showLoaderOnConfirm: true,
+        //     preConfirm: (login) => {
+        //         return async function fetchMesh() {
+        //             const response = await fetch('https://final-3d-reconstruction.herokuapp.com/post/', {
+        //           //const response = await fetch('http://127.0.0.1:5000/post/', {
+        //             method: 'POST',
+        //             headers: {
+        //               //'Accept': 'application/json',
+        //               'Content-Type': 'application/json'
+        //             },
+        //             body: JSON.stringify({'data': JSON.stringify(pointCloud)})
+        //             //body: JSON.stringify({'data': pointCloud}),
+        //           });
+        //           const content = await response.blob();
+        //           console.log(content)
+        //           return content;
+        //         }
+                
+        //         // fetchMesh().then(content => {
+        //         //   //console.log(content); // fetched movies
+        //         //   var url = URL.createObjectURL(content);
+        //         //   res = new Result(parentGlobal, url)
+        //         // });
+        //         }
+        // })
+        // Swal.fire({
+        //     title: 'Please Wait !',
+        //     html: 'data uploading',// add html attribute if you want or remove
+        //     allowOutsideClick: false,
+        //     onBeforeOpen: () => {
+        //         Swal.showLoading()
+        //     },
+        // });
+        Swal.fire({
+            title: 'Loading the newly created mesh'
         });
+        Swal.showLoading();
+       
+
+        function delay(delayInms) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                resolve(2);
+                }, delayInms);
+            });
+        }
+        await delay(300);
+
+        async function fetchMesh() {
+        const response = await fetch('https://final-3d-reconstruction.herokuapp.com/post/', {
+        //const response = await fetch('http://127.0.0.1:5000/post/', {
+        method: 'POST',
+        headers: {
+            //'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({'data': JSON.stringify(pointCloud)})
+        //body: JSON.stringify({'data': pointCloud}),
+        });
+        const content = await response.blob();
+        return content;
+    }
+    
+    await fetchMesh().then(content => {
+        //console.log(content); // fetched movies
+        var url = URL.createObjectURL(content);
+        res = new Result(parentGlobal, url)
+    });
+
+
+    Swal.close()
 
     }
 
@@ -351,10 +404,11 @@ class Flower extends Group {
         //swal("Hello world!");
     // https://sweetalert2.github.io/#download
     const { value: file } = await Swal.fire({
-        title: 'Select image',
+        title: 'Select a .ply file to upload',
         input: 'file',
         inputAttributes: {
-          'aria-label': 'Upload your mesh, only use .ply files'
+          'aria-label': 'Upload your mesh, only use .ply files',
+          'accept': '.ply'
         }
       })
       

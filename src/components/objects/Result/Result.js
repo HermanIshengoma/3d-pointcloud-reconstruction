@@ -22,7 +22,7 @@ class Result extends Group {
             // https://dev.to/maniflames/pointcloud-effect-in-three-js-3eic
             //const material = new PointsMaterial( { color: 0x808080, size: 1.0/128.0 } )
             //mesh = new Points(geometry, material)
-            console.log(geometry);
+            // console.log(geometry);
             const material = new MeshBasicMaterial({color: 0x808080});
             var mesh1 = new Mesh(geometry, material)
             mesh1.rotateX(-Math.PI / 2)

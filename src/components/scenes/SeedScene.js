@@ -25,7 +25,7 @@ class SeedScene extends Scene {
 
         // Populate GUI
         var folders = {};
-        this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
+        // this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
         const pcGen = this.state.gui.addFolder('PointCloudGeneration');
         folders["PointCloudGeneration"] = pcGen;
         pcGen.add(this.state, 'numSamples', 1000, 5000);
