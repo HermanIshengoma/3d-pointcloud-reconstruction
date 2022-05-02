@@ -10,6 +10,13 @@ var geo;
 var parentState;
 var parentGlobal;
 var res;
+var selectedPC = false;
+var selectedNoise = false;
+var selectedInflate = false;
+var selectedTwist = false;
+var selectedSmooth = false;
+var selectedSharpen = false;
+var temp;
 class Flower extends Group {
 
     constructor(parent, meshObj, pState, folders) {
@@ -45,8 +52,8 @@ class Flower extends Group {
             sharpenIter: 1,
             sharpenDelta: 1.00,
 
-            uploadMesh: this.uploadMesh.bind(this),
-            selectedFile: null
+            // uploadMesh: this.uploadMesh.bind(this),
+            // selectedFile: null
         };
 
         
@@ -146,13 +153,14 @@ class Flower extends Group {
         fold.add(this.state, 'sharpenDelta', 0.00, 30.00)
         fold.add(this.state, 'sharpenApply');
 
-        this.state.gui.add(this.state, 'uploadMesh');
+        //this.state.gui.add(this.state, 'uploadMesh');
 
 
     }
 
     // randomly select random set of vertices
     pointCloudRand() {
+        
         if(parentGlobal.children.length == 4){
             // console.log(parentGlobal.children[3]['uuid'])
             const object = parentGlobal.getObjectByProperty( 'uuid', parentGlobal.children[3]['uuid']);
@@ -344,9 +352,30 @@ class Flower extends Group {
         this.boundMesh();
     }
 
-    uploadMesh(){
-        swal("Hello world!");
-    }
+    // uploadMesh(){
+    //     swal("Hello world!");
+    // https://sweetalert2.github.io/#download
+    // const { value: file } = await Swal.fire({
+    //     title: 'Select image',
+    //     input: 'file',
+    //     inputAttributes: {
+    //       'accept': 'image/*',
+    //       'aria-label': 'Upload your profile picture'
+    //     }
+    //   })
+      
+    //   if (file) {
+    //     const reader = new FileReader()
+    //     reader.onload = (e) => {
+    //       Swal.fire({
+    //         title: 'Your uploaded picture',
+    //         imageUrl: e.target.result,
+    //         imageAlt: 'The uploaded picture'
+    //       })
+    //     }
+    //     reader.readAsDataURL(file)
+    //   }
+    // }
     
     update(timeStamp) {
         if (this.state.bob) {
