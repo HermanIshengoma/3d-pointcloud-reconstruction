@@ -2,6 +2,8 @@ import { Group, MeshBasicMaterial, Mesh, Points, PointsMaterial, Vector3, Geomet
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader'
 import {Result} from 'objects';
+import swal from 'sweetalert';
+
 
 var mesh = null;
 var geo;
@@ -25,13 +27,26 @@ class Flower extends Group {
             pointCloudRand: this.pointCloudRand.bind(this),
             resolution: 96,
             twirl: 0,
+
             noiseApply: this.noise.bind(this),
-            inflateApply: this.inflate.bind(this),
-            twistApply: this.twist.bind(this),
             factorNoise: 1.0/8.0,
+
+            inflateApply: this.inflate.bind(this),
             factorInflate: 1.0/8.0,
-            factorTwist: 1.0
+
+            twistApply: this.twist.bind(this),
+            factorTwist: 1.0,
             
+            smoothApply: this.smooth.bind(this),
+            iter: 1,
+            delta: 1.00,
+
+            sharpenApply: this.sharpen.bind(this),
+            sharpenIter: 1,
+            sharpenDelta: 1.00,
+
+            uploadMesh: this.uploadMesh.bind(this),
+            selectedFile: null
         };
 
         
@@ -120,6 +135,20 @@ class Flower extends Group {
         var fold = filter.addFolder('twist')
         fold.add(this.state, 'factorTwist', 0.0, 5.0);
         fold.add(this.state, 'twistApply');
+
+        var fold = filter.addFolder('smooth')
+        fold.add(this.state, 'iter', 0, 3000)
+        fold.add(this.state, 'delta', 0.00, 30)
+        fold.add(this.state, 'smoothApply');
+
+        var fold = filter.addFolder('sharpen')
+        fold.add(this.state, 'sharpenIter', 0, 3000)
+        fold.add(this.state, 'sharpenDelta', 0.00, 30.00)
+        fold.add(this.state, 'sharpenApply');
+
+        this.state.gui.add(this.state, 'uploadMesh');
+
+
     }
 
     // randomly select random set of vertices
@@ -233,6 +262,92 @@ class Flower extends Group {
 
     }
 
+    smooth(){
+        const iter = this.state.iter;
+        const delta = -1.0 * this.state.delta;
+        
+        const n_vertices = geo.attributes.position.count;
+        var geoProper = new Geometry().fromBufferGeometry( geo );
+
+        //console.log(delta);
+        var vertsCopy = [];
+        for(var i = 0; i < n_vertices; i++){
+            vertsCopy.push(this.getVertex(i));
+        }
+        for(var i = 0; i < iter; i++){
+            for (var j = 0; j < n_vertices; j++){
+                var v = this.getVertex(j);
+                var neighbours = this.neighbouringVerts(j, geoProper);
+                var weights = new Vector3(0, 0, 0);
+               
+                var num_neighbours = neighbours.size;
+                for(var k = 0; k < num_neighbours; k++){
+                    weights.add(this.getVertex(neighbours[k]));
+                }
+
+                let temp = new Vector3(-1*(v).getComponent(0)* num_neighbours, -1*(v).getComponent(1)* num_neighbours, -1*(v).getComponent(2)* num_neighbours);
+                weights.add(temp);
+                weights.multiplyScalar(delta);
+
+                vertsCopy[j].add(weights);
+            }
+
+            //update original mesh
+            for(let j = 0; j < n_vertices; j++){
+                this.updateVertex(j, vertsCopy[j]);
+            }
+        }
+        // console.log('Smooth complete')
+
+        // geo.computeBoundingBox();
+        // console.log('before bounding box', geo.boundingBox);
+        this.boundMesh();
+    }
+
+    sharpen(){
+        const iter = this.state.iter;
+        const delta = this.state.delta;
+        const n_vertices = geo.attributes.position.count;
+        var geoProper = new Geometry().fromBufferGeometry( geo );
+
+        var vertsCopy = [];
+        for(var i = 0; i < n_vertices; i++){
+            vertsCopy.push(this.getVertex(i));
+        }
+        for(var i = 0; i < iter; i++){
+            for (var j = 0; j < n_vertices; j++){
+                var v = this.getVertex(j);
+                var neighbours = this.neighbouringVerts(j, geoProper);
+                var weights = new Vector3(0, 0, 0);
+               
+                var num_neighbours = neighbours.size;
+                for(var k = 0; k < num_neighbours; k++){
+                    weights.add(this.getVertex(neighbours[k]));
+                }
+
+                let temp = new Vector3(1*(v).getComponent(0)* num_neighbours, 1*(v).getComponent(1)* num_neighbours, 1*(v).getComponent(2)* num_neighbours);
+                weights.add(temp);
+                weights.multiplyScalar(delta);
+
+                vertsCopy[j].add(weights);
+            }
+
+            //update original mesh
+            for(let j = 0; j < n_vertices; j++){
+                this.updateVertex(j, vertsCopy[j]);
+            }
+        }
+        console.log('Sharpen complete')
+
+        // geo.computeBoundingBox();
+        // console.log('before bounding box', geo.boundingBox);
+        this.boundMesh();
+    }
+
+    uploadMesh(){
+        swal("Hello world!");
+    }
+    
     update(timeStamp) {
         if (this.state.bob) {
             // Bob back and forth
@@ -249,7 +364,7 @@ class Flower extends Group {
     }
 
     // mesh functions
-    // get vertex of mesh at index i
+    // get vertex of mesh at index i returns Vector3
     getVertex(i){
         const pos = geo.attributes.position;
         var x = i*3;
@@ -316,7 +431,7 @@ class Flower extends Group {
     }
 
     // ensuring mesh is inside unit cube or encompasses most of it
-    async boundMesh(){
+    boundMesh(){
         geo.computeBoundingBox();
         // console.log('before bounding box', geo.boundingBox)
         var max = 0.0;

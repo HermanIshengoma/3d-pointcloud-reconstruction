@@ -9,6 +9,12 @@
 import { WebGLRenderer, PerspectiveCamera, Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SeedScene } from 'scenes';
+import React from 'react'
+import ReactDOM from 'react-dom'; 
+// import render from 'react-dom' 
+import Popup from 'reactjs-popup';
+
+
 
 // Initialize core ThreeJS components
 const scene = new SeedScene('reconstruct.ply');
@@ -78,17 +84,3 @@ const windowResizeHandler = () => {
 };
 windowResizeHandler();
 window.addEventListener('resize', windowResizeHandler, false);
-
-// // referencing https://stackoverflow.com/questions/30860773/how-to-get-the-mouse-position-using-three-js
-// const mouseLocation = (event) => {
-//     var mouse = new Vector3();
-//     // mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-//     // mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-//     mouse.x = event.clientX;
-//     mouse.y = event.clientY;
-//     //mouse.z = event.clientZ;
-//     console.log("mouse position: (" + mouse.x + ", "+ mouse.y + ")");
-// };
-// document.addEventListener("click", mouseLocation, false);
-
-
