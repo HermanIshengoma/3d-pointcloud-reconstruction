@@ -1,6 +1,7 @@
-import { Group, MeshBasicMaterial, Mesh, Points, PointsMaterial, Vector3, Geometry, Euler  } from 'three';
+import { Group, MeshBasicMaterial, Mesh, Points, PointsMaterial, Vector3, Geometry, Euler, MeshStandardMaterial  } from 'three';
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader'
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import {Result} from 'objects';
 import Swal from 'sweetalert2';
 
@@ -60,7 +61,7 @@ class Flower extends Group {
         const loader = new PLYLoader();
 
         this.name = 'baseModel';
-        const path = './src/components/objects/models/' + meshObj;
+        const path = './src/components/objects/models/' + 'teapot.ply';
 
         async function fetchMesh() {
             const response = await fetch('https://final-3d-reconstruction.herokuapp.com/post/', {
@@ -85,7 +86,9 @@ class Flower extends Group {
                     geometry.computeVertexNormals()
                     // https://stackoverflow.com/questions/25735128/three-js-show-single-vertex-as-ie-a-dot
                     // https://dev.to/maniflames/pointcloud-effect-in-three-js-3eic
-                    const material = new MeshBasicMaterial({color: 0x5DADE2 });
+                    
+                    //const material = new MeshBasicMaterial({color: 0x5DADE2 });
+                    const material = new MeshStandardMaterial();
                     mesh = new Mesh(geometry, material)
                     mesh.rotateX(-Math.PI / 2)
             
@@ -108,6 +111,9 @@ class Flower extends Group {
                     parent.add(mesh)
             
                 },
+                // function(object){
+                //     parent.add( object );
+                // },
                 (xhr) => {
                     console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
                 },
@@ -122,6 +128,8 @@ class Flower extends Group {
 
         // Populate GUI
         // this.state.gui.add(this.state, 'bob');
+
+        // 64, 96, or 128
         folders['PointCloudGeneration'].add(this.state, 'resolution', 64, 128);
         folders['PointCloudGeneration'].add(this.state, 'pointCloudRand');
 
@@ -155,7 +163,11 @@ class Flower extends Group {
 
     // randomly select random set of vertices
     async pointCloudRand() {
-        
+        // send 30,000 vertices
+        // send integer of number of vertices the user selected
+
+        // will need textbox for reconstruction accuracy
+
         if(parentGlobal.children.length == 4){
             // console.log(parentGlobal.children[3]['uuid'])
             const object = parentGlobal.getObjectByProperty( 'uuid', parentGlobal.children[3]['uuid']);
@@ -218,6 +230,7 @@ class Flower extends Group {
         //         Swal.showLoading()
         //     },
         // });
+        // 
         Swal.fire({
             title: 'Loading the newly created mesh'
         });
@@ -424,7 +437,7 @@ class Flower extends Group {
                 geometry.computeVertexNormals()
                 // https://stackoverflow.com/questions/25735128/three-js-show-single-vertex-as-ie-a-dot
                 // https://dev.to/maniflames/pointcloud-effect-in-three-js-3eic
-                const material = new MeshBasicMaterial({color: 0x5DADE2 });
+                const material = new MeshStandardMaterial({color: 0x5DADE2 });
                 mesh = new Mesh(geometry, material)
                 mesh.rotateX(-Math.PI / 2)
         
@@ -442,7 +455,7 @@ class Flower extends Group {
                 var scale = 1.0/max;
                 geometry.scale(scale, scale, scale);
                 geometry.computeBoundingBox();
-        
+                
                 geo = geometry;
                 
                 

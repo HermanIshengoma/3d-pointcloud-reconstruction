@@ -1,5 +1,5 @@
 import * as Dat from 'dat.gui';
-import { Scene, Color } from 'three';
+import { Scene, Color, GridHelper } from 'three';
 import { Flower, Land, Models, Result} from 'objects';
 import { BasicLights } from 'lights';
 // import { Result } from '../objects';
@@ -28,12 +28,15 @@ class SeedScene extends Scene {
         // this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
         const pcGen = this.state.gui.addFolder('PointCloudGeneration');
         folders["PointCloudGeneration"] = pcGen;
-        pcGen.add(this.state, 'numSamples', 1000, 5000);
+        pcGen.add(this.state, 'numSamples', 1000, 10000);
+
 
         // Add meshes to scene
         const model = new Flower(this, meshObj, this.state, folders);
         //const model = new Models();
         const lights = new BasicLights();
+        
+        
         this.add(model, lights);
     }
 

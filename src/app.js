@@ -35,7 +35,7 @@ document.body.appendChild(canvas);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.enablePan = false;
-controls.minDistance = 4;
+controls.minDistance = 0;
 controls.maxDistance = 16;
 controls.update();
 
@@ -77,7 +77,7 @@ Swal.fire({
           title: "Filters Guide",
           text: "On the upper right corner we have opened the \'Filters\' folder. There are 5 filters that you can apply to the mesh: noise, inflate, twist, smooth, and sharpen.",
           showCancelButton: true,
-          showLoaderOnConfirm: true,
+          // showLoaderOnConfirm: true,
           confirmButtonText: `Next`
       }).then((result) => {
         if (result.isConfirmed) {

@@ -1,4 +1,4 @@
-import { Group, MeshBasicMaterial, Mesh } from 'three';
+import { Group, MeshStandardMaterial, Mesh } from 'three';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader'
 
 
@@ -23,7 +23,7 @@ class Result extends Group {
             //const material = new PointsMaterial( { color: 0x808080, size: 1.0/128.0 } )
             //mesh = new Points(geometry, material)
             // console.log(geometry);
-            const material = new MeshBasicMaterial({color: 0x808080});
+            const material = new MeshStandardMaterial({color: 0x808080});
             var mesh1 = new Mesh(geometry, material)
             mesh1.rotateX(-Math.PI / 2)
             mesh1.translateX(3)
