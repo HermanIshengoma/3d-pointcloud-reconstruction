@@ -64,14 +64,14 @@ class Flower extends Group {
         const path = './src/components/objects/models/' + 'teapot.ply';
 
         async function fetchMesh() {
-            const response = await fetch('https://final-3d-reconstruction.herokuapp.com/post/', {
-          //const response = await fetch('http://127.0.0.1:5000/post/', {
+            //const response = await fetch('https://final-3d-reconstruction.herokuapp.com/post/', {
+            const response = await fetch('http://127.0.0.1:5000/retrievemeshes/', {
             method: 'POST',
             headers: {
               //'Accept': 'application/json',
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({'data': JSON.stringify([[]])})
+            body: JSON.stringify({'meshID': 1})
           });
           const content = await response.blob();
           return content;
@@ -94,18 +94,30 @@ class Flower extends Group {
             
                     // ensuring mesh is inside unit cube or encompasses most of it
                     geometry.computeBoundingBox();
+                    console.log(geometry.boundingBox.max);
+                    console.log(geometry.boundingBox.min);
                     // console.log('before bounding box', geometry.boundingBox)
                     var max = 0.0;
-                    if (Math.abs(geometry.boundingBox.max.x) > max) max = geometry.boundingBox.max.x
-                    if (Math.abs(geometry.boundingBox.max.y) > max) max = geometry.boundingBox.max.y
-                    if (Math.abs(geometry.boundingBox.max.z) > max) max = geometry.boundingBox.max.z
-                    if (Math.abs(geometry.boundingBox.min.x) > max) max = geometry.boundingBox.min.x
-                    if (Math.abs(geometry.boundingBox.min.y) > max) max = geometry.boundingBox.min.y
-                    if (Math.abs(geometry.boundingBox.min.z) > max) max = geometry.boundingBox.min.z
-                    max = Math.abs(max);
+
+
+                    max = Math.max( Math.abs(geometry.boundingBox.max.x), Math.abs(geometry.boundingBox.max.y),
+                                    Math.abs(geometry.boundingBox.max.z), Math.abs(geometry.boundingBox.min.x),
+                                    Math.abs(geometry.boundingBox.min.y), Math.abs(geometry.boundingBox.min.z),
+                        )
+
+
+                    // if (Math.abs(geometry.boundingBox.max.x) > max) max = geometry.boundingBox.max.x
+                    // if (Math.abs(geometry.boundingBox.max.y) > max) max = geometry.boundingBox.max.y
+                    // if (Math.abs(geometry.boundingBox.max.z) > max) max = geometry.boundingBox.max.z
+                    // if (Math.abs(geometry.boundingBox.min.x) > max) max = geometry.boundingBox.min.x
+                    // if (Math.abs(geometry.boundingBox.min.y) > max) max = geometry.boundingBox.min.y
+                    // if (Math.abs(geometry.boundingBox.min.z) > max) max = geometry.boundingBox.min.z
+                    //max = Math.abs(max);
+                    console.log("max: ",max)
                     var scale = 1.0/max;
-                    geometry.scale(scale, scale, scale);
-                    geometry.computeBoundingBox();
+                    // geometry.scale(scale, scale, scale);
+                    // geometry.computeBoundingBox();
+                    // console.log(geometry);
             
                     geo = geometry;
                     parent.add(mesh)
@@ -247,8 +259,8 @@ class Flower extends Group {
         await delay(300);
 
         async function fetchMesh() {
-        const response = await fetch('https://final-3d-reconstruction.herokuapp.com/post/', {
-        //const response = await fetch('http://127.0.0.1:5000/post/', {
+        //const response = await fetch('https://final-3d-reconstruction.herokuapp.com/post/', {
+        const response = await fetch('http://127.0.0.1:5000/post/', {
         method: 'POST',
         headers: {
             //'Accept': 'application/json',
@@ -568,13 +580,10 @@ class Flower extends Group {
         geo.computeBoundingBox();
         // console.log('before bounding box', geo.boundingBox)
         var max = 0.0;
-        if (Math.abs(geo.boundingBox.max.x) > max) max = geo.boundingBox.max.x
-        if (Math.abs(geo.boundingBox.max.y) > max) max = geo.boundingBox.max.y
-        if (Math.abs(geo.boundingBox.max.z) > max) max = geo.boundingBox.max.z
-        if (Math.abs(geo.boundingBox.min.x) > max) max = geo.boundingBox.min.x
-        if (Math.abs(geo.boundingBox.min.y) > max) max = geo.boundingBox.min.y
-        if (Math.abs(geo.boundingBox.min.z) > max) max = geo.boundingBox.min.z
-        max = Math.abs(max);
+        max = Math.max( Math.abs(geometry.boundingBox.max.x), Math.abs(geometry.boundingBox.max.y),
+                                    Math.abs(geometry.boundingBox.max.z), Math.abs(geometry.boundingBox.min.x),
+                                    Math.abs(geometry.boundingBox.min.y), Math.abs(geometry.boundingBox.min.z),
+                        )
         var scale = 1.0/max;
         geo.scale(scale, scale, scale);
         geo.computeBoundingBox();
