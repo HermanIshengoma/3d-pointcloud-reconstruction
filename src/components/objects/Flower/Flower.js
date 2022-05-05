@@ -19,6 +19,8 @@ import ANS22 from './model22ans.ply'
 import ANS23 from './model23ans.ply'
 import ANS24 from './model24ans.ply'
 import ANS31 from './obj1_recon_model3.ply'
+import ANS32 from './teapot.ply'
+import ANS33 from './reconstruct.ply'
 // ./src/components/objects/Flower/reconstruct.ply
 
 var mesh = null;
@@ -544,16 +546,20 @@ class Flower extends Group {
         var type = this.state.Object3;
 
         var name;
+        var name2;
         if(type == 'Type3-1'){
             name = TYPE31;
+            name2 = ANS31;
         }else if(type == 'Type3-2'){
             name = TYPE32;
+            name2 = ANS32;
         }else if(type == 'Type3-3'){
             name = TYPE33;
+            name2 = ANS33;
         }
         this.deleteMeshes()
         this.displayMesh(name, false)
-        this.displayMesh(ANS31, true)
+        this.displayMesh(name2, true)
     }
 
     reset(){
