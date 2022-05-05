@@ -1,0 +1,37 @@
+{
+  "Description" : [ "model 3 + small train split..." ],
+  "DataSource" : "../DeepSDF/data",
+  "TrainSplit" : "data/splits/small_train_split.json",
+  "TestSplit" : "data/splits/small_train_split.json",
+  "Model" : "Baseline",
+  "TrainData" : "labeled",
+
+  "EncoderSpecs" : {
+    "latent_size" : 128,
+    "hidden_dim" : 32,
+    "unet_kwargs" : {"depth": 4, "merge_mode": "concat", "start_filts": 32},
+    "plane_resolution" : 64
+  },
+
+  "DecoderSpecs" : {
+    "hidden_dim" : 128,
+    "weight_norm" : false,
+    "skip_connection" : true,
+    "geo_init":true,
+    "dropout_prob" : 0.0
+  },
+
+  "SampPerMesh" : 16384,
+  "PCsize" : 1024,
+
+  "NumEpochs" : 3001,
+  "LogFrequency" : 1001,
+
+  "LearningRate" : {
+    "init" : 1e-4,
+    "step_size" : 50000,
+    "gamma" : 0.5
+  }
+
+}
+

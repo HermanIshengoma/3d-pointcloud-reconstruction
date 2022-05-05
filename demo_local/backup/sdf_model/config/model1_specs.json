@@ -1,0 +1,30 @@
+{
+  "Description" : [ "overfit decoder on one object..." ],
+  "DataSource" : "data",
+  "TrainSplit" : "data/splits/bed_one.json",
+  "TestSplit" : "data/splits/bed_one.json",
+  "Model" : "Overfit",
+  "TrainData" : "labeled",
+
+  "DecoderSpecs" : {
+    "hidden_dim" : 128,
+    "weight_norm" : false,
+    "skip_connection" : true,
+    "geo_init":true,
+    "dropout_prob" : 0.2,
+    "tanh_act":true
+  },
+
+  "SampPerMesh" : 200000,
+
+  "NumEpochs" : 2001,
+  "LogFrequency" : 500,
+
+  "LearningRate" : {
+    "dec_init" : 5e-4,
+    "step_size" : 500,
+    "gamma" : 0.5
+  }
+
+}
+

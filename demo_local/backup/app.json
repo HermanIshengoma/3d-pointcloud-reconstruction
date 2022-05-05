@@ -1,0 +1,17 @@
+{
+  "name": "new version",
+  "description": "new version",
+  "image": "heroku/python",
+  "repository": "https://github.com/gene-chou/3D_recon_demo",
+  "keywords": ["python"],
+  "addons": [],
+  "env": {},
+  "environments": {
+    "test": {
+      "scripts": {
+        // "test-setup": "python manage.py collectstatic --noinput",
+        // "test": "python manage.py test"
+      }
+    }
+  }
+}
