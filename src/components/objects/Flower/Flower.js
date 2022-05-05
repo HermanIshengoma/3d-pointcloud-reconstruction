@@ -4,7 +4,7 @@ import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import {Result} from 'objects';
 import Swal from 'sweetalert2';
-//import MODEL from './reconstruct.ply'
+import MODEL from './reconstruct.ply'
 // ./src/components/objects/Flower/reconstruct.ply
 
 var mesh = null;
@@ -58,6 +58,14 @@ class Flower extends Group {
 
             uploadMesh: this.uploadMesh.bind(this),
             // selectedFile: null
+
+            Object1: 'Type1-1',
+            Object2: 'Type2-1',
+            Object3: 'Type3-1',
+            GetModel1: this.gallery1.bind(this),
+            GetModel2: this.gallery2.bind(this),
+            GetModel3: this.gallery3.bind(this),
+            
         };
 
         
@@ -83,7 +91,7 @@ class Flower extends Group {
         }
         fetchMesh().then(content => {
             //console.log(content); // fetched movies
-            path,
+            MODEL,
             //var url = URL.createObjectURL(content);
              // https://sbcode.net/threejs/loaders-ply/
             loader.load(
@@ -176,6 +184,21 @@ class Flower extends Group {
         fold.add(this.state, 'sharpenApply');
 
         this.state.gui.add(this.state, 'uploadMesh');
+
+        var fold = this.state.gui.addFolder('Gallery')
+
+        var subFold = fold.addFolder('Model Type 1')
+        subFold.add(this.state, 'Object1', ['Type1-1'])
+        subFold.add(this.state, 'GetModel1')
+
+        var subFold = fold.addFolder('Model Type 2')
+        subFold.add(this.state, 'Object2', ['Type2-1', 'Type2-2','Type2-3', 'Type2-4'])
+        subFold.add(this.state, 'GetModel2')
+
+        var subFold = fold.addFolder('Model Type 3')
+        subFold.add(this.state, 'Object3', ['Type3-1', 'Type3-2','Type3-3', 'Type3-4']);
+        subFold.add(this.state, 'GetModel3')
+
     }
 
     // randomly select random set of vertices
@@ -461,6 +484,19 @@ class Flower extends Group {
       }
       //console.log(file)
     }
+
+    gallery1(){
+        console.log('Gallery1')
+    }
+
+    gallery2(){
+        console.log('Gallery2')
+    }
+
+    gallery3(){
+        console.log('Gallery3')
+        var name = this.state.Type2;
+    }
     
     update(timeStamp) {
         if (this.state.bob) {
@@ -549,9 +585,9 @@ class Flower extends Group {
         geo.computeBoundingBox();
         // console.log('before bounding box', geo.boundingBox)
         var max = 0.0;
-        max = Math.max( Math.abs(geometry.boundingBox.max.x), Math.abs(geometry.boundingBox.max.y),
-                                    Math.abs(geometry.boundingBox.max.z), Math.abs(geometry.boundingBox.min.x),
-                                    Math.abs(geometry.boundingBox.min.y), Math.abs(geometry.boundingBox.min.z),
+        max = Math.max( Math.abs(geo.boundingBox.max.x), Math.abs(geo.boundingBox.max.y),
+                                    Math.abs(geo.boundingBox.max.z), Math.abs(geo.boundingBox.min.x),
+                                    Math.abs(geo.boundingBox.min.y), Math.abs(geo.boundingBox.min.z),
                         )
         var scale = 1.0/max;
         geo.scale(scale, scale, scale);
