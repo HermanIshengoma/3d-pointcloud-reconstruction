@@ -15,6 +15,7 @@ class SeedScene extends Scene {
             rotationSpeed: 1,
             updateList: [],
             numSamples: 1000,
+            reconstructed: false,
         };
 
         // Set background to a nice color
@@ -42,6 +43,11 @@ class SeedScene extends Scene {
 
     addToUpdateList(object) {
         this.state.updateList.push(object);
+    }
+
+    reconstructionComputed(){
+        this.state.reconstructed = true;
+        
     }
 
     update(timeStamp) {

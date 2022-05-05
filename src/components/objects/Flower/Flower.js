@@ -4,6 +4,8 @@ import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import {Result} from 'objects';
 import Swal from 'sweetalert2';
+//import MODEL from './reconstruct.ply'
+// ./src/components/objects/Flower/reconstruct.ply
 
 var mesh = null;
 var geo;
@@ -17,12 +19,13 @@ var selectedTwist = false;
 var selectedSmooth = false;
 var selectedSharpen = false;
 var temp;
+
 class Flower extends Group {
 
     constructor(parent, meshObj, pState, folders) {
         // Call parent Group() constructor
         super();
-
+        
         parentGlobal = parent;
         parentState = pState;
 
@@ -33,6 +36,7 @@ class Flower extends Group {
             bob: true,
             pointCloudRand: this.pointCloudRand.bind(this),
             resolution: 96,
+            modelType: 'Level1',
             twirl: 0,
 
             noiseApply: this.noise.bind(this),
@@ -61,27 +65,29 @@ class Flower extends Group {
         const loader = new PLYLoader();
 
         this.name = 'baseModel';
-        const path = './src/components/objects/models/' + 'teapot.ply';
+        const path = './src/components/objects/models/' + 'reconstruct.ply';
 
         async function fetchMesh() {
-            //const response = await fetch('https://final-3d-reconstruction.herokuapp.com/post/', {
-            const response = await fetch('http://127.0.0.1:5000/retrievemeshes/', {
+            const response = await fetch('https://final-3d-reconstruction.herokuapp.com/post/', {
+            //const response = await fetch('http://127.0.0.1:5000/retrievemeshes/', {
             method: 'POST',
             headers: {
               //'Accept': 'application/json',
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({'meshID': 1})
+            //body: JSON.stringify({'meshID': 1})
+            body: JSON.stringify([])
           });
           const content = await response.blob();
           return content;
         }
         fetchMesh().then(content => {
             //console.log(content); // fetched movies
-            var url = URL.createObjectURL(content);
+            path,
+            //var url = URL.createObjectURL(content);
              // https://sbcode.net/threejs/loaders-ply/
             loader.load(
-                url,
+                path,
                 function (geometry) {
                     geometry.computeVertexNormals()
                     // https://stackoverflow.com/questions/25735128/three-js-show-single-vertex-as-ie-a-dot
@@ -94,8 +100,8 @@ class Flower extends Group {
             
                     // ensuring mesh is inside unit cube or encompasses most of it
                     geometry.computeBoundingBox();
-                    console.log(geometry.boundingBox.max);
-                    console.log(geometry.boundingBox.min);
+                    //console.log(geometry.boundingBox.max);
+                    //console.log(geometry.boundingBox.min);
                     // console.log('before bounding box', geometry.boundingBox)
                     var max = 0.0;
 
@@ -113,7 +119,7 @@ class Flower extends Group {
                     // if (Math.abs(geometry.boundingBox.min.y) > max) max = geometry.boundingBox.min.y
                     // if (Math.abs(geometry.boundingBox.min.z) > max) max = geometry.boundingBox.min.z
                     //max = Math.abs(max);
-                    console.log("max: ",max)
+                    //console.log("max: ",max)
                     var scale = 1.0/max;
                     // geometry.scale(scale, scale, scale);
                     // geometry.computeBoundingBox();
@@ -142,7 +148,8 @@ class Flower extends Group {
         // this.state.gui.add(this.state, 'bob');
 
         // 64, 96, or 128
-        folders['PointCloudGeneration'].add(this.state, 'resolution', 64, 128);
+        folders['PointCloudGeneration'].add(this.state, 'resolution', [64, 96, 128]);
+        folders['PointCloudGeneration'].add(this.state, 'modelType', ['Level1', 'Level2', 'Level3']);
         folders['PointCloudGeneration'].add(this.state, 'pointCloudRand');
 
         const filter = this.state.gui.addFolder('Filters');
@@ -169,8 +176,6 @@ class Flower extends Group {
         fold.add(this.state, 'sharpenApply');
 
         this.state.gui.add(this.state, 'uploadMesh');
-
-
     }
 
     // randomly select random set of vertices
@@ -192,11 +197,12 @@ class Flower extends Group {
         }
         const pos = geo.attributes.position;
         const numVertices = pos.count;
-        const samples = parentState.numSamples;
+        const samples = Math.round(parentState.numSamples);
         var pointCloud = [];
         var tracker = []
-        var resolution = Math.round(this.state.resolution);
-        
+        const resolution = Math.round(this.state.resolution);
+        const type = this.state.modelType;
+       // console.log(samples)
 
         for (var i = 0; i < samples; i++){
             var rand = Math.floor(Math.random() * numVertices);
@@ -204,45 +210,7 @@ class Flower extends Group {
             pointCloud.push([pos.array[rand * 3], pos.array[(rand * 3) + 1], pos.array[(rand * 3) + 2]]);
             tracker.push(rand);
         }
-        console.log(pointCloud);
-        // console.log(geo.attributes.position)
-        // send request
-        // Swal.fire({
-        //     text: 'Loading the newly created mesh',
-        //     showLoaderOnConfirm: true,
-        //     preConfirm: (login) => {
-        //         return async function fetchMesh() {
-        //             const response = await fetch('https://final-3d-reconstruction.herokuapp.com/post/', {
-        //           //const response = await fetch('http://127.0.0.1:5000/post/', {
-        //             method: 'POST',
-        //             headers: {
-        //               //'Accept': 'application/json',
-        //               'Content-Type': 'application/json'
-        //             },
-        //             body: JSON.stringify({'data': JSON.stringify(pointCloud)})
-        //             //body: JSON.stringify({'data': pointCloud}),
-        //           });
-        //           const content = await response.blob();
-        //           console.log(content)
-        //           return content;
-        //         }
-                
-        //         // fetchMesh().then(content => {
-        //         //   //console.log(content); // fetched movies
-        //         //   var url = URL.createObjectURL(content);
-        //         //   res = new Result(parentGlobal, url)
-        //         // });
-        //         }
-        // })
-        // Swal.fire({
-        //     title: 'Please Wait !',
-        //     html: 'data uploading',// add html attribute if you want or remove
-        //     allowOutsideClick: false,
-        //     onBeforeOpen: () => {
-        //         Swal.showLoading()
-        //     },
-        // });
-        // 
+        //console.log(pointCloud);
         Swal.fire({
             title: 'Loading the newly created mesh'
         });
@@ -259,14 +227,14 @@ class Flower extends Group {
         await delay(300);
 
         async function fetchMesh() {
-        //const response = await fetch('https://final-3d-reconstruction.herokuapp.com/post/', {
-        const response = await fetch('http://127.0.0.1:5000/post/', {
+        const response = await fetch('https://final-3d-reconstruction.herokuapp.com/post/', {
+        //const response = await fetch('http://127.0.0.1:5000/post/', {
         method: 'POST',
         headers: {
             //'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({'data': JSON.stringify(pointCloud)})
+        body: JSON.stringify({'data': JSON.stringify(pointCloud, resolution, type)})
         //body: JSON.stringify({'data': pointCloud}),
         });
         const content = await response.blob();
@@ -281,6 +249,7 @@ class Flower extends Group {
 
 
     Swal.close()
+    parentGlobal.reconstructionComputed();
 
     }
 

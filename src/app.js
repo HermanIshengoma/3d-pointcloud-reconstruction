@@ -18,6 +18,7 @@ const scene = new SeedScene('reconstruct.ply');
 //const scene2 = new SeedScene();
 const camera = new PerspectiveCamera();
 const renderer = new WebGLRenderer({ antialias: true });
+// const renderer2 = new WebGLRenderer({ antialias: true });
 
 // Set up camera
 camera.position.set(6, 3, -10);
@@ -25,11 +26,28 @@ camera.lookAt(new Vector3(0, 0, 0));
 
 // Set up renderer, canvas, and minor CSS adjustments
 renderer.setPixelRatio(window.devicePixelRatio);
+// renderer2.setPixelRatio(window.devicePixelRatio);
+// const canvas2 = renderer2.domElement;
 const canvas = renderer.domElement;
+
+
 canvas.style.display = 'block'; // Removes padding below canvas
+// canvas2.style.display = 'block';
 document.body.style.margin = 0; // Removes margin around page
 document.body.style.overflow = 'hidden'; // Fix scrolling
+//console.log('Before appendending', document)
+
 document.body.appendChild(canvas);
+// document.body.appendChild(canvas2);
+
+
+//console.log('After appending', document)
+
+// const { innerHeight2, innerWidth2 } = window;
+// canvas2.style.left = innerWidth2/2;
+// canvas2.style.top = 0;
+// //canvas2.offsetLeft = innerWidth2/2;
+// console.log('Accessing canvas2:', canvas2)
 
 // Set up controls
 const controls = new OrbitControls(camera, canvas);
@@ -43,8 +61,9 @@ controls.update();
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
     controls.update();
+    // if(scene.state.reconstructed) camera.lookAt(new Vector3(1.5, 0, 0))
     renderer.render(scene, camera);
-    //renderer.render(scene2, camera);
+    // renderer2.render(scene, camera);
     scene.update && scene.update(timeStamp);
     //scene2.update && scene2.update(timeStamp);
     window.requestAnimationFrame(onAnimationFrameHandler);
@@ -54,8 +73,13 @@ window.requestAnimationFrame(onAnimationFrameHandler);
 // Resize Handler
 const windowResizeHandler = () => {
     const { innerHeight, innerWidth } = window;
+    // renderer2.setSize(innerWidth/2, innerHeight);
     renderer.setSize(innerWidth, innerHeight);
-    camera.aspect = innerWidth / innerHeight;
+    // canvas2.style.position = 'absolute';
+    // canvas2.style.top = innerHeight / 2 - canvas2.height / 2 + 'px';
+    // canvas2.style.left = innerWidth / 2 + 'px';
+    
+    camera.aspect = (innerWidth) / innerHeight;
     camera.updateProjectionMatrix();
 };
 windowResizeHandler();
