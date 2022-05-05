@@ -257,7 +257,9 @@ class Flower extends Group {
             //'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({'data': JSON.stringify(pointCloud, resolution, type)})
+        body: JSON.stringify({'data': JSON.stringify(pointClouds),
+                                'resolution': resolution,
+                            'type': type})
         //body: JSON.stringify({'data': pointCloud}),
         });
         const content = await response.blob();
