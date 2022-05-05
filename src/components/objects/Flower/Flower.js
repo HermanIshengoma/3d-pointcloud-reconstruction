@@ -106,11 +106,11 @@ class Flower extends Group {
         }
         fetchMesh().then(content => {
             //console.log(content); // fetched movies
-            MODEL,
+            //MODEL,
             //var url = URL.createObjectURL(content);
              // https://sbcode.net/threejs/loaders-ply/
             loader.load(
-                path,
+                MODEL,
                 function (geometry) {
                     geometry.computeVertexNormals()
                     // https://stackoverflow.com/questions/25735128/three-js-show-single-vertex-as-ie-a-dot
