@@ -5,6 +5,20 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import {Result} from 'objects';
 import Swal from 'sweetalert2';
 import MODEL from './reconstruct.ply'
+import TYPE11 from './bed1.ply'
+import TYPE21 from './bed1.ply'
+import TYPE22 from './bed2.ply'
+import TYPE23 from './bed3.ply'
+import TYPE24 from './bed4.ply'
+import TYPE31 from './obj1.ply'
+import TYPE32 from './obj2.ply'
+import TYPE33 from './obj3.ply'
+import ANS11 from './bed1_recon_model1.ply'
+import ANS21 from './model21ans.ply'
+import ANS22 from './model22ans.ply'
+import ANS23 from './model23ans.ply'
+import ANS24 from './model24ans.ply'
+import ANS31 from './obj1_recon_model3.ply'
 // ./src/components/objects/Flower/reconstruct.ply
 
 var mesh = null;
@@ -66,6 +80,7 @@ class Flower extends Group {
             GetModel2: this.gallery2.bind(this),
             GetModel3: this.gallery3.bind(this),
             
+            reset: this.reset.bind(this)
         };
 
         
@@ -196,8 +211,10 @@ class Flower extends Group {
         subFold.add(this.state, 'GetModel2')
 
         var subFold = fold.addFolder('Model Type 3')
-        subFold.add(this.state, 'Object3', ['Type3-1', 'Type3-2','Type3-3', 'Type3-4']);
+        subFold.add(this.state, 'Object3', ['Type3-1', 'Type3-2','Type3-3']);
         subFold.add(this.state, 'GetModel3')
+
+        this.state.gui.add(this.state, 'reset');
 
     }
 
@@ -247,7 +264,7 @@ class Flower extends Group {
                 }, delayInms);
             });
         }
-        await delay(300);
+        // await delay(300);
 
         async function fetchMesh() {
         const response = await fetch('https://final-3d-reconstruction.herokuapp.com/post/', {
@@ -257,7 +274,7 @@ class Flower extends Group {
             //'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({'data': JSON.stringify(pointClouds),
+        body: JSON.stringify({'data': JSON.stringify(pointCloud),
                                 'resolution': resolution,
                             'type': type})
         //body: JSON.stringify({'data': pointCloud}),
@@ -487,17 +504,135 @@ class Flower extends Group {
       //console.log(file)
     }
 
+
     gallery1(){
-        console.log('Gallery1')
+        //console.log('Gallery1')
+        var type = this.state.Object1;
+
+        var name = TYPE11;
+        this.deleteMeshes()
+        this.displayMesh(name, false)
+        this.displayMesh(ANS11, true)
     }
 
     gallery2(){
-        console.log('Gallery2')
+        //console.log('Gallery2')
+        var type = this.state.Object2;
+
+        var name;
+        var name2;
+        if(type == 'Type2-1'){
+            name = TYPE21;
+            name2 = ANS21;
+        }else if(type == 'Type2-2'){
+            name = TYPE22;
+            name2 = ANS22;
+        }else if(type == 'Type2-3'){
+            name = TYPE23;
+            name2 = ANS23;
+        }else if(type == 'Type2-4'){
+            name = TYPE24;
+            name2 = ANS24;
+        }
+        this.deleteMeshes()
+        this.displayMesh(name, false)
+        this.displayMesh(name2, true);
     }
 
     gallery3(){
-        console.log('Gallery3')
-        var name = this.state.Type2;
+        //console.log('Gallery3')
+        var type = this.state.Object3;
+
+        var name;
+        if(type == 'Type3-1'){
+            name = TYPE31;
+        }else if(type == 'Type3-2'){
+            name = TYPE32;
+        }else if(type == 'Type3-3'){
+            name = TYPE33;
+        }
+        this.deleteMeshes()
+        this.displayMesh(name, false)
+        this.displayMesh(ANS31, true)
+    }
+
+    reset(){
+        // console.log(parentGlobal)
+        this.deleteMeshes()
+        this.displayMesh(MODEL)
+        // console.log(parentGlobal)
+    }
+
+    deleteMeshes(){
+        if(parentGlobal.children.length == 4){
+            // console.log(parentGlobal.children[3]['uuid'])
+            var object = parentGlobal.getObjectByProperty( 'uuid', parentGlobal.children[3]['uuid']);
+            // referencing https://discourse.threejs.org/t/correctly-remove-mesh-from-scene-and-dispose-material-and-geometry/5448/2
+            object.geometry.dispose();
+            object.material.dispose();
+            parentGlobal.remove( object );
+
+            object = parentGlobal.getObjectByProperty( 'uuid', parentGlobal.children[2]['uuid']);
+            // referencing https://discourse.threejs.org/t/correctly-remove-mesh-from-scene-and-dispose-material-and-geometry/5448/2
+            object.geometry.dispose();
+            object.material.dispose();
+            parentGlobal.remove( object );
+            
+            // console.log(parentGlobal.children);
+        }else{
+            object = parentGlobal.getObjectByProperty( 'uuid', parentGlobal.children[2]['uuid']);
+            // referencing https://discourse.threejs.org/t/correctly-remove-mesh-from-scene-and-dispose-material-and-geometry/5448/2
+            object.geometry.dispose();
+            object.material.dispose();
+            parentGlobal.remove( object );
+        }
+    }
+
+    displayMesh(name, offset){
+        const loader = new PLYLoader();
+        loader.load(
+            name,
+            function (geometry) {
+                geometry.computeVertexNormals()
+                // https://stackoverflow.com/questions/25735128/three-js-show-single-vertex-as-ie-a-dot
+                // https://dev.to/maniflames/pointcloud-effect-in-three-js-3eic
+                
+                //const material = new MeshBasicMaterial({color: 0x5DADE2 });
+                const material = new MeshStandardMaterial();
+                mesh = new Mesh(geometry, material)
+                mesh.rotateX(-Math.PI / 2)
+                if (offset) mesh.translateX(3)
+        
+                // ensuring mesh is inside unit cube or encompasses most of it
+                geometry.computeBoundingBox();
+                //console.log(geometry.boundingBox.max);
+                //console.log(geometry.boundingBox.min);
+                // console.log('before bounding box', geometry.boundingBox)
+                var max = 0.0;
+
+
+                max = Math.max( Math.abs(geometry.boundingBox.max.x), Math.abs(geometry.boundingBox.max.y),
+                                Math.abs(geometry.boundingBox.max.z), Math.abs(geometry.boundingBox.min.x),
+                                Math.abs(geometry.boundingBox.min.y), Math.abs(geometry.boundingBox.min.z),
+                    )
+
+                var scale = 1.0/max;
+                geometry.scale(scale, scale, scale);
+                geometry.computeBoundingBox();
+                // console.log(geometry);
+        
+                geo = geometry;
+                parentGlobal.add(mesh)
+        
+            },
+            
+            (xhr) => {
+                console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+            },
+            (error) => {
+                console.log(error)
+            }
+        )
     }
     
     update(timeStamp) {
@@ -514,6 +649,7 @@ class Flower extends Group {
         // Advance tween animations, if any exist
         TWEEN.update();
     }
+
 
     // mesh functions
     // get vertex of mesh at index i returns Vector3
