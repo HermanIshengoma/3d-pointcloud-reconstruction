@@ -598,7 +598,9 @@ class Flower extends Group {
                 // https://dev.to/maniflames/pointcloud-effect-in-three-js-3eic
                 
                 //const material = new MeshBasicMaterial({color: 0x5DADE2 });
-                const material = new MeshStandardMaterial();
+                var material;
+                if(offset) material = new MeshStandardMaterial({color: 0x5DADE2 });
+                else  material = new MeshStandardMaterial();
                 mesh = new Mesh(geometry, material)
                 mesh.rotateX(-Math.PI / 2)
                 if (offset) mesh.translateX(3)

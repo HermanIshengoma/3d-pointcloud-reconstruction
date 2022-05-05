@@ -23,6 +23,7 @@ const renderer = new WebGLRenderer({ antialias: true });
 // Set up camera
 camera.position.set(6, 3, -10);
 camera.lookAt(new Vector3(0, 0, 0));
+var lookingAtOriginal = true
 
 // Set up renderer, canvas, and minor CSS adjustments
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -60,12 +61,14 @@ controls.update();
 
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
+    
     controls.update();
     // if(scene.state.reconstructed) camera.lookAt(new Vector3(1.5, 0, 0))
     renderer.render(scene, camera);
     // renderer2.render(scene, camera);
     scene.update && scene.update(timeStamp);
     //scene2.update && scene2.update(timeStamp);
+    
     window.requestAnimationFrame(onAnimationFrameHandler);
 };
 window.requestAnimationFrame(onAnimationFrameHandler);
@@ -84,6 +87,22 @@ const windowResizeHandler = () => {
 };
 windowResizeHandler();
 window.addEventListener('resize', windowResizeHandler, false);
+
+document.addEventListener('keyup', event => {
+    if (event.code === 'Space') {
+        
+        if (lookingAtOriginal){
+            
+            controls.target = new Vector3(3, 0, 0);
+            lookingAtOriginal = !lookingAtOriginal
+        } 
+        else{
+            controls.target =new Vector3(0, 0, 0 );
+            lookingAtOriginal = !lookingAtOriginal
+        } 
+    }
+  })
+
 // Swal.showLoading()
 Swal.fire({
     title: 'Welcome to \'Reconstructing 3D Point Clouds\'!',
